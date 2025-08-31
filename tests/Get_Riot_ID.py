@@ -9,5 +9,5 @@ from api import MyInfo
 
 #---------------------------------------------------------------------------------
 
-me = API.get_puuid("Coach Tae#123", "NA")
+me = API.get_Riot_ID(MyInfo.MY_PUUID, 'NA')
 print(me)

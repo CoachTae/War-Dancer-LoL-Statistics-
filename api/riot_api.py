@@ -1,6 +1,7 @@
 import requests
 import urllib.parse
 import sys
+from urllib.parse import quote
 
 from api.constants import *
 from api.MyInfo import *
@@ -75,3 +76,62 @@ def get_match_data(region, platform_region, match_id):
 
 
 
+def get_summoner_data(puuid, platform_region):
+    """
+    Given a puuid, retrieves encrypted ID, account ID, profile icon ID, and summoner Level.
+
+    Parameters:
+        puuid = Unique player ID
+        platform_region (str) = na1, br1, etc
+
+    return:
+        SummonerDTO
+    """
+    url = f"https://{platform_region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+    headers = {"X-Riot-Token": API_KEY}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+
+def get_Riot_ID(puuid, region):
+    """
+    Fetches Riot ID (in-game ID) given a puuid. e.g. "Coach Tae#123"
+
+    Parameters:
+        puuid (str): Unique player ID
+        region (str): NA, EU, OCE, ASIA
+
+    returns:
+        Riot ID (str)
+    """
+    BASE_URL = get_base_url(region)
+    url = f"{BASE_URL}/riot/account/v1/accounts/by-puuid/{puuid}"
+    headers = {"X-Riot-Token": API_KEY}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    Riot_ID = f'{response.json()["gameName"]}#{response.json()["tagLine"]}'
+    return Riot_ID
+
+
+def get_puuid(RiotID, region):
+    """
+    Gets puuid given a RiotID (e.g. Coach Tae#123).
+
+    Parameters:
+        puuid (str): Unique player ID
+        region (str): NA, EU, OCE, ASIA
+
+    returns:
+        puuid
+    """
+    gameName, tag_line = RiotID.split("#")
+    encoded_gameName = quote(gameName)
+    encoded_tag_line = quote(tag_line)
+    
+    BASE_URL = get_base_url(region)
+    url = f"{BASE_URL}/riot/account/v1/accounts/by-riot-id/{encoded_gameName}/{encoded_tag_line}"
+    headers = {"X-Riot-Token": API_KEY}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()["puuid"]

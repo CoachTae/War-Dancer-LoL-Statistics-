@@ -9,5 +9,5 @@ from api import MyInfo
 
 #---------------------------------------------------------------------------------
 
-me = API.get_puuid("Coach Tae#123", "NA")
-print(me)
+match_ids = API.get_match_ids(MyInfo.MY_PUUID, "NA", start=0, count=20)
+print(match_ids)
