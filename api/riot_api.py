@@ -27,14 +27,22 @@ def get_base_url(region, is_platform_specific=False):
             print(f"GOT {region} AS A RESPONSE WHEN EXPECTED NA, EU, OCE, OR ASIA.")
             sys.exit()
             
+
+
+
 def get_champion_data(patch_version):
     url = f"https://ddragon.leagueoflegends.com/cdn/{patch_version}/data/en_US/champion.json"
     response = requests.get(url)
     response.raise_for_status() # Raise an error for bad status codes
     return response.json()
 
+
+
+
+
+
 def get_match_ids(puuid, region, start=0, count=20):
-    '''Gets *count* most recent games from *puuid*'s match history.
+    '''Gets (count) most recent games from (puuid)'s match history.
 
         Parameters:
            puuid = Unique player ID
@@ -55,6 +63,11 @@ def get_match_ids(puuid, region, start=0, count=20):
     response.raise_for_status()
     return response.json()
 
+
+
+
+
+
 def get_match_data(region, platform_region, match_id):
     """
     Parameters:
@@ -68,7 +81,10 @@ def get_match_data(region, platform_region, match_id):
     TESTED AND WORKS!
     """
     BASE_URL = get_base_url(region)
-    url = f"{BASE_URL}/lol/match/v5/matches/{platform_region.upper()}_{match_id}"
+    if "_" in match_id:
+        url = f"{BASE_URL}/lol/match/v5/matches/{match_id}"
+    else:
+        url = f"{BASE_URL}/lol/match/v5/matches/{platform_region.upper()}_{match_id}"
     headers = {"X-Riot-Token": API_KEY}
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -135,3 +151,9 @@ def get_puuid(RiotID, region):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     return response.json()["puuid"]
+
+
+def get_patch(matchDTO):
+    fullversion = matchDTO['info']['gameVersion']
+    parts = fullversion.split('.')
+    return '.'.join(parts[:2])
